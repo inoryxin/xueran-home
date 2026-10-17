@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#ffd9e8">
+<!-- 页面自带浅色/暗色主题，别让 Dark Reader 之类的扩展再自动变暗（官方支持的标记） -->
+<meta name="darkreader-lock">
+<meta name="description" content="许雪然的二次元浏览器主页 —— 猫娘立绘、樱花、快捷网址自动抓 logo">
+<title>✿ 许雪然 · 主页</title>
+<link rel="icon" href="assets/chibi/chibi-q1.png">
+<link rel="stylesheet" href="css/style.css?v=1">
+</head>
+<body>
+
+<!-- ============ 背景 ============ -->
+<div class="bg" id="bg" aria-hidden="true"></div>
+<div class="bg-veil" aria-hidden="true"></div>
+<canvas class="fx" id="fx" aria-hidden="true"></canvas>
+
+<!-- ============ 主舞台（图一的大外框） ============ -->
+<div class="stage">
+  <div class="frame" id="frame">
+    <span class="frame-glow" aria-hidden="true"></span>
+    <span class="tape" aria-hidden="true"></span>
+    <span class="orn orn-tl" aria-hidden="true">✦</span>
+    <span class="orn orn-tr" aria-hidden="true">❀</span>
+    <span class="orn orn-bl" aria-hidden="true">❀</span>
+    <span class="orn orn-br" aria-hidden="true">✦</span>
+
+    <div class="frame-grid">
+
+      <!-- ---------- 左：Logo + 立绘 ---------- -->
+      <aside class="side">
+        <div class="brand" id="brand" title="点一下雪然会说话哦～">
+          <span class="brand-art">
+            <img class="brand-img" id="brandImg" src="assets/logo.png" alt="许雪然" draggable="false">
+          </span>
+          <div class="brand-sub" id="brandSub">✿ 欢迎回来，雪然 ✿</div>
+        </div>
+
+        <div class="char" id="charWrap" role="button" tabindex="0" aria-label="许雪然">
+          <div class="bubble" id="bubble">今天也要元气满满鸭～</div>
+          <img class="char-img" id="charImg" src="assets/xueran-desk.png" alt="许雪然" draggable="false">
+          <span class="char-shadow" aria-hidden="true"></span>
+          <span class="char-spark s1" aria-hidden="true">✦</span>
+          <span class="char-spark s2" aria-hidden="true">✦</span>
+          <span class="char-spark s3" aria-hidden="true">✧</span>
+        </div>
+      </aside>
+
+      <span class="divider" aria-hidden="true"></span>
+
+      <!-- ---------- 右：时钟 + 搜索 + 快捷方式 + 波浪 ---------- -->
+      <section class="main">
+        <div class="hello">
+          <div class="hello-time">
+            <span id="clockTime">--:--</span><i id="clockSec">00</i>
+          </div>
+          <div class="hello-meta">
+            <b id="greet">你好呀～</b>
+            <span id="today">加载中…</span>
+          </div>
+        </div>
+
+        <form class="search" id="searchForm" role="search" autocomplete="off">
+          <button class="engine-btn" id="engineBtn" type="button" title="切换搜索引擎（Tab）">
+            <span class="engine-dot" id="engineDot">百</span>
+          </button>
+          <span class="search-ico" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round">
+              <circle cx="10.5" cy="10.5" r="6.4"/><path d="M15.4 15.4 20.6 20.6"/>
+            </svg>
+          </span>
+          <input id="q" type="search" placeholder="搜索一下～ 或者粘贴网址直接打开" spellcheck="false" aria-label="搜索或网址">
+          <button class="search-go" type="submit" aria-label="开始搜索">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 12h13"/><path d="M12 6.4 17.8 12 12 17.6"/>
+            </svg>
+          </button>
+        </form>
+
+        <div class="engines" id="engines" role="tablist" aria-label="搜索引擎"></div>
+
+        <div class="tiles-head">
+          <span class="tiles-title">✿ 常用网址</span>
+          <span class="tiles-tip" id="tilesTip">悬停樱花右上角可编辑 · 拖动可排序</span>
+          <button class="mini-btn" id="btnEditMode" type="button" title="整理模式">✎ 整理</button>
+          <button class="mini-btn" id="btnAddTile" type="button" title="添加网址（N）">＋ 添加</button>
+        </div>
+
+        <div class="tiles-scroll">
+          <div class="tiles" id="tiles"></div>
+        </div>
+
+        <svg class="wave" viewBox="0 0 460 170" fill="none" aria-hidden="true">
+          <defs>
+            <linearGradient id="waveGrad" x1="0" y1="1" x2="1" y2="0">
+              <stop offset="0" stop-color="#ffd0e3"/><stop offset=".5" stop-color="#ff9dc4"/><stop offset="1" stop-color="#e8b866"/>
+            </linearGradient>
+          </defs>
+          <path id="wavePath" d="M8 44c62 0 84 104 168 104 74 0 104-96 178-96 38 0 60 18 82 38"
+                stroke="url(#waveGrad)" stroke-width="4.5" stroke-linecap="round"/>
+          <g opacity=".9">
+            <path d="M300 20l5 11 11 5-11 5-5 11-5-11-11-5 11-5z" fill="#e8b866" opacity=".85"/>
+            <path d="M96 122l3.4 7.4 7.4 3.4-7.4 3.4-3.4 7.4-3.4-7.4-7.4-3.4 7.4-3.4z" fill="#ff9dc4" opacity=".8"/>
+            <path d="M404 128c10-8 26-6 32 3 5 8-1 17-11 17-9 0-16-6-21-13z" fill="#ffb3d3" opacity=".75"/>
+            <circle cx="396" cy="126" r="2.6" fill="#7a3b58" opacity=".65"/>
+          </g>
+        </svg>
+      </section>
+
+    </div>
+  </div>
+</div>
+
+<!-- ============ 看板娘 ============ -->
+<div class="pet" id="pet" role="button" tabindex="0" aria-label="许雪然看板娘">
+  <div class="pet-bubble" id="petBubble">点我一下嘛～</div>
+  <img class="pet-img" id="petImg" src="assets/chibi/chibi-q1.png" alt="" draggable="false">
+</div>
+
+<!-- ============ 悬浮按钮 ============ -->
+<button class="theme-btn" id="btnTheme" title="切换暗色模式（D）" aria-label="切换浅色 / 暗色模式">
+  <svg class="ico-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M20.5 14.8A8.7 8.7 0 0 1 9.2 3.5a8.7 8.7 0 1 0 11.3 11.3z"/>
+  </svg>
+  <svg class="ico-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="12" r="4.1"/>
+    <path d="M12 2.4v2.3M12 19.3v2.3M2.4 12h2.3M19.3 12h2.3M5.2 5.2l1.6 1.6M17.2 17.2l1.6 1.6M18.8 5.2l-1.6 1.6M6.8 17.2l-1.6 1.6"/>
+  </svg>
+</button>
+
+<button class="gear" id="btnSettings" title="个性化设置（S）" aria-label="打开设置">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="12" r="3.1"/>
+    <path d="M19.3 14.9a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.9 2.8l-.1-.1a1.7 1.7 0 0 0-2.9 1.2v.2a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-3-1.3l-.1.1a2 2 0 1 1-2.8-2.9l.1-.1a1.7 1.7 0 0 0-1.2-2.9H2.6a2 2 0 1 1 0-4h.2a1.7 1.7 0 0 0 1.2-2.9l-.1-.1a2 2 0 1 1 2.9-2.8l.1.1a1.7 1.7 0 0 0 1.9.3h.1a1.7 1.7 0 0 0 1-1.5V2.6a2 2 0 1 1 4 0v.2a1.7 1.7 0 0 0 2.9 1.2l.1-.1a2 2 0 1 1 2.8 2.9l-.1.1a1.7 1.7 0 0 0-.3 1.9v.1a1.7 1.7 0 0 0 1.5 1h.2a2 2 0 1 1 0 4h-.2a1.7 1.7 0 0 0-1.5 1z"/>
+  </svg>
+</button>
+
+<!-- ============ 设置抽屉 ============ -->
+<div class="mask" id="mask"></div>
+<aside class="drawer" id="drawer" aria-hidden="true" aria-label="个性化设置">
+  <div class="drawer-head">
+    <div class="drawer-title">✿ 个性化设置</div>
+    <button class="icon-btn" id="btnCloseDrawer" aria-label="关闭">✕</button>
+  </div>
+
+  <div class="drawer-body">
+
+    <section class="card">
+      <h3>🎨 主题</h3>
+      <div class="row wrap" id="themeRow">
+        <button class="mini-btn theme-opt" type="button" data-theme="light">🌸 樱花（浅色）</button>
+        <button class="mini-btn theme-opt" type="button" data-theme="dark">🌙 夜樱（暗色）</button>
+        <button class="mini-btn theme-opt" type="button" data-theme="auto">🖥 跟随系统</button>
+      </div>
+      <p class="note">左下角那个月亮/太阳按钮、或者快捷键 <b>D</b>，都能一键切换浅色 / 暗色。</p>
+    </section>
+
+    <section class="card">
+      <h3>🌸 背景配色</h3>
+      <div class="preset-row" id="bgPresets"></div>
+      <label class="field range"><span>背景亮度 <b id="valBright">100%</b></span>
+        <input id="setBright" type="range" min="70" max="140" step="1"></label>
+      <label class="field range"><span>背景暗度 <b id="valDim">10%</b></span>
+        <input id="setDim" type="range" min="0" max="60" step="1"></label>
+      <p class="note">纯色渐变配色，不用图片背景。配色跟着主题走（浅色 / 暗色各一套）。</p>
+    </section>
+
+    <section class="card">
+      <h3>💗 Logo</h3>
+      <label class="field">
+        <span>Logo 图片地址</span>
+        <input id="setLogoImg" type="text" placeholder="assets/logo.png">
+      </label>
+      <div class="row">
+        <label class="btn-file">📁 上传 Logo<input id="logoFile" type="file" accept="image/*" hidden></label>
+        <button class="btn-ghost" id="btnResetLogo" type="button">还原默认</button>
+      </div>
+      <label class="field">
+        <span>Logo 下方文字</span>
+        <input id="setLogoSub" type="text" placeholder="✿ 欢迎回来，雪然 ✿">
+      </label>
+      <label class="field range"><span>Logo 大小 <b id="valLogoSize">100%</b></span>
+        <input id="setLogoSize" type="range" min="50" max="180" step="5"></label>
+    </section>
+
+    <section class="card">
+      <h3>🔍 搜索</h3>
+      <label class="field"><span>默认搜索引擎</span><select id="setEngine"></select></label>
+      <div class="switch-row">
+        <label class="switch"><input id="tgNewTab" type="checkbox"><span>快捷方式在新标签页打开</span></label>
+        <label class="switch"><input id="tgEdit" type="checkbox"><span>整理模式（显示 ✎ ✕ 按钮）</span></label>
+      </div>
+    </section>
+
+    <section class="card">
+      <h3>🎀 快捷方式</h3>
+      <div class="row wrap">
+        <button class="btn-main" id="btnAddTile2" type="button">＋ 添加网址</button>
+      </div>
+      <p class="note">公网网址会依次尝试 <b>iowen → favicon.im → DuckDuckGo → Google</b>，
+        再兜底问站点自己的 <b>/favicon.ico · /favicon.svg · /favicon.png · /apple-touch-icon.png …</b>；
+        <b>本机 / 内网地址</b>（127.0.0.1、192.168.x.x、nas.local 之类）直接问站点自己。
+        抓不到就用名称的<b>第一个字</b>做花蕊字块。图标缓存 7 天。</p>
+    </section>
+
+    <section class="card">
+      <h3>✨ 动效</h3>
+      <div class="switch-row">
+        <label class="switch"><input id="tgPetals" type="checkbox"><span>樱花飘落</span></label>
+        <label class="switch"><input id="tgStars" type="checkbox"><span>星光闪烁</span></label>
+        <label class="switch"><input id="tgTrail" type="checkbox"><span>光标星屑</span></label>
+        <label class="switch"><input id="tgPet" type="checkbox"><span>Q 版看板娘</span></label>
+      </div>
+    </section>
+
+    <section class="card">
+      <h3>💾 数据</h3>
+      <div class="row wrap">
+        <button class="btn-ghost" id="btnExport" type="button">导出配置</button>
+        <label class="btn-file">导入配置<input id="importFile" type="file" accept="application/json,.json" hidden></label>
+        <button class="btn-ghost" id="btnReset" type="button">恢复默认</button>
+      </div>
+      <p class="note">配置存在浏览器本地（localStorage）；上传的图片会以 DataURL 一起保存，建议大图直接用文件路径。</p>
+    </section>
+
+  </div>
+</aside>
+
+<!-- ============ 添加 / 编辑网址 ============ -->
+<div class="dialog-wrap" id="dialogWrap" aria-hidden="true">
+  <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="dlgTitle">
+    <div class="dialog-head">
+      <h3 id="dlgTitle">添加网址</h3>
+      <button class="icon-btn" id="dlgClose" aria-label="关闭">✕</button>
+    </div>
+    <label class="field"><span>名称</span><input id="dlgName" maxlength="24" placeholder="例：哔哩哔哩"></label>
+    <label class="field"><span>网址</span><input id="dlgUrl" maxlength="300" placeholder="例：bilibili.com"></label>
+    <label class="field">
+      分类（留空＝未分类）</span>
+      <input id="dlgCat" maxlength="16" list="catList" placeholder="例：常用 / 工具 / 摸鱼">
+    </label>
+    <datalist id="catList"></datalist>
+    <label class="field">
+      <span>图标（留空自动抓取）</span>
+      <span class="row">
+        <input id="dlgIcon" maxlength="300" placeholder="emoji，或图片地址">
+        <button class="btn-ghost" id="dlgRefetch" type="button" title="清掉这个站点的图标缓存并重新抓一次">🔄 重抓</button>
+      </span>
+    </label>
+    <p class="note">✿ 留空时会自动获取网站 logo；如果这个站没有图标，就用名称的<b>第一个字</b>来当图标。
+      内网 / 本机地址会去 `/favicon.*`、常见图标目录、以及 `/ui/` 这类子路径下找；
+      换了图标没更新就点「🔄 重抓」。</p>
+    <div class="dialog-foot">
+      <button class="btn-ghost" id="dlgDelete" type="button">删除</button>
+      <span class="spacer"></span>
+      <button class="btn-ghost" id="dlgCancel" type="button">取消</button>
+      <button class="btn-main" id="dlgSave" type="button">保存 ✿</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="js/app.js?v=1"></script>
+</body>
+</html>
